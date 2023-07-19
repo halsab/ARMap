@@ -13,8 +13,10 @@ final class Annotation: NSObject, MKAnnotation {
     let coordinate: CLLocationCoordinate2D
     let title: String?
 
-    init(point: Point) {
-        self.coordinate = point.location.coordinate
+    init?(point: Point) {
+        guard let coordinate = point.location?.coordinate else { return nil }
+        
+        self.coordinate = coordinate
         self.title = point.name
 
         super.init()

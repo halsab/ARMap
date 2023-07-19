@@ -16,6 +16,7 @@ class ViewController: UIViewController {
 
     private let locationManager = CLLocationManager()
     private var points: [Point] = []
+    private var arViewController: ARViewController!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +26,7 @@ class ViewController: UIViewController {
     private func setup() {
         setupLocationManager()
         setupPOIs()
+        setupARViewController()
     }
 
     private func setupLocationManager() {
@@ -53,11 +55,21 @@ class ViewController: UIViewController {
             .init(name: "pshenger", location: .init(latitude: 56.41480214192328, longitude: 49.9781613634406)),
         ]
 
-        let annotaions = points.map { Annotation(point: $0) }
+        let annotaions = points.compactMap { Annotation(point: $0) }
 
         DispatchQueue.main.async {
             annotaions.forEach { self.mapView.addAnnotation($0) }
         }
+    }
+
+    private func setupARViewController() {
+        arViewController = ARViewController()
+        arViewController.dataSource = self
+        arViewController.maxVisibleAnnotations = 10
+        arViewController.headingSmoothingFactor = 0.05
+        arViewController.maxVerticalLevel = 3
+        arViewController.setAnnotations(points)
+        arViewController.closeButtonImage = UIImage(named: "MapButton")
     }
 }
 
@@ -65,7 +77,7 @@ class ViewController: UIViewController {
 
 extension ViewController {
     @IBAction func showARController(_ sender: Any) {
-
+        present(arViewController, animated: true)
     }
 }
 
@@ -89,5 +101,31 @@ extension ViewController: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Can't get location")
+    }
+}
+
+extension ViewController: ARDataSource {
+    func ar(_ arViewController: ARViewController, viewForAnnotation: ARAnnotation) -> ARAnnotationView {
+//        let annotationView = AnnotationView()
+//        annotationView.annotation = viewForAnnotation
+//        annotationView.delegate = self
+//        annotationView.loadUI()
+//
+//        guard let place = viewForAnnotation as? Place else {
+//            return annotationView
+//        }
+//
+//        guard let titleLabel = annotationView.titleLabel else {
+//            return annotationView
+//        }
+//
+//        let expectedLabelSize = place.name.size(withAttributes: [NSAttributedString.Key.font: titleLabel.font])
+//        let labelWidth = expectedLabelSize.width + 75.0 > 200.0 ? expectedLabelSize.width + 75.0: 200.0
+//
+//        annotationView.frame = CGRect(x: 0, y: 0, width: labelWidth, height: 70)
+//
+//        return annotationView
+
+        return .init()
     }
 }

@@ -8,8 +8,14 @@
 import Foundation
 import CoreLocation
 
-struct Point: Identifiable {
+final class Point: ARAnnotation {
     let id = UUID()
     let name: String
-    let location: CLLocation
+
+    init(name: String, location: CLLocation) {
+        self.name = name
+
+        super.init()
+        self.location = location
+    }
 }

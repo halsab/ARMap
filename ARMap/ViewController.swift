@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     @IBOutlet private weak var cameraButton: UIButton!
 
     private let locationManager = CLLocationManager()
+    private var points: [Point] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,10 +23,41 @@ class ViewController: UIViewController {
     }
 
     private func setup() {
+        setupLocationManager()
+        setupPOIs()
+    }
+
+    private func setupLocationManager() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         locationManager.startUpdatingLocation()
         locationManager.requestWhenInUseAuthorization()
+    }
+
+    private func setupPOIs() {
+        /*
+         post - 56.360171544220094, 50.02143823212503
+         tauzar - 56.344262704311184, 50.05760303416836
+         karaduvan - 56.34336076647664, 50.09637428471595
+         apaz - 56.387413017532545, 49.97778011590534
+         yarak-churma - 56.38144453236199, 50.15076414927715
+         pshenger - 56.41480214192328, 49.9781613634406
+         */
+
+        points = [
+            .init(name: "post", location: .init(latitude: 56.360171544220094, longitude: 50.02143823212503)),
+            .init(name: "tauzar", location: .init(latitude: 56.344262704311184, longitude: 50.05760303416836)),
+            .init(name: "karaduvan", location: .init(latitude: 56.34336076647664, longitude: 50.09637428471595)),
+            .init(name: "apaz", location: .init(latitude: 56.387413017532545, longitude: 49.97778011590534)),
+            .init(name: "yarak-churma", location: .init(latitude: 56.38144453236199, longitude: 50.15076414927715)),
+            .init(name: "pshenger", location: .init(latitude: 56.41480214192328, longitude: 49.9781613634406)),
+        ]
+
+        let annotaions = points.map { Annotation(point: $0) }
+
+        DispatchQueue.main.async {
+            annotaions.forEach { self.mapView.addAnnotation($0) }
+        }
     }
 }
 
@@ -53,37 +85,6 @@ extension ViewController: CLLocationManagerDelegate {
         let region = MKCoordinateRegion(center: location.coordinate, span: span)
 
         mapView.region = region
-
-//        if !startedLoadingPOIs {
-//            startedLoadingPOIs = true
-//
-//            let apiManager = APIManager()
-//            apiManager.loadPOIs(for: location, within: 1_000, completion: { (places, error) in
-//                if let _ = error {
-//                    let alert = UIAlertController(title: "Error", message: "Could not load points of interest. Please check Internet connection, then close and reload app.", preferredStyle: UIAlertController.Style.alert)
-//                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-//                    self.present(alert, animated: true, completion: nil)
-//                } else if let loadedPlaces = places {
-//                    print("Finding POIs")
-//                    let loadedPlaces: [Place] = [
-//                        .init(location: .init(latitude: 55.79935218809192, longitude: 49.10612197932382),
-//                              id: "0", name: "Name", formattedPhone: "Phone", formattedAddress: "Address",
-//                              rating: 5, isOpen: true, category: "Category", tier: 0, tipText: "Tip Text",
-//                              userName: "User Name", userImageURL: "", photoURL: "")
-//                    ]
-//                    self.places = loadedPlaces
-//                    let annotations = loadedPlaces.map({ (place) -> PlaceAnnotation in
-//                        return PlaceAnnotation(location: place.location!.coordinate, title: place.name)
-//                    })
-//
-//                    DispatchQueue.main.async {
-//                        annotations.forEach({ (annotation) in
-//                            self.mapView.addAnnotation(annotation)
-//                        })
-//                    }
-//                }
-//            })
-//        }
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

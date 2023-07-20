@@ -11,53 +11,39 @@ import UIKit
 /// View for annotation. Subclass to customize. Annotation views should be lightweight,
 /// try to avoid xibs and autolayout.
 /// bindUi method is called when distance/azimuth is set in ARViewController.
-open class ARAnnotationView: UIView
-{
-    open weak var annotation: ARAnnotation?
-    fileprivate var initialized: Bool = false
+class ARAnnotationView: UIView {
+
+    weak var annotation: ARAnnotation?
+    private var initialized: Bool = false
     
-    public init()
-    {
-        super.init(frame: CGRect.zero)
-        self.initializeInternal()
+    init() {
+        super.init(frame: .zero)
+        initializeInternal()
     }
     
-    public required init?(coder aDecoder: NSCoder)
-    {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.initializeInternal()
+        initializeInternal()
     }
     
-    override init(frame: CGRect)
-    {
+    override init(frame: CGRect) {
         super.init(frame: frame)
-        self.initializeInternal()
+        initializeInternal()
     }
     
-    fileprivate func initializeInternal()
-    {
-        if self.initialized
-        {
-            return
-        }
-        self.initialized = true;
-        self.initialize()
+    private func initializeInternal() {
+        guard !initialized else { return }
+        initialized = true;
+        initialize()
     }
     
-    open override func awakeFromNib()
-    {
-        self.bindUi()
+    override func awakeFromNib() {
+        bindUi()
     }
     
     /// Will always be called once, no need to call super
-    open func initialize()
-    {
-        
-    }
+    func initialize() {}
     
     /// Called when distance/azimuth changes, intended to be used in subclasses
-    open func bindUi()
-    {
-        
-    }
+    func bindUi() {}
 }

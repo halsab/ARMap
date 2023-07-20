@@ -270,7 +270,7 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
         var validAnnotations: [ARAnnotation] = []
         // Don't use annotations without valid location
         for annotation in annotations {
-            if annotation.location != nil && CLLocationCoordinate2DIsValid(annotation.location!.coordinate) {
+            if CLLocationCoordinate2DIsValid(annotation.location.coordinate) {
                 validAnnotations.append(annotation)
             }
         }
@@ -322,10 +322,7 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
         for annotation in activeAnnotations
         {
             // Don't create annotation view for annotation that doesn't have valid location. Note: checked before, should remove
-            if annotation.location == nil || !CLLocationCoordinate2DIsValid(annotation.location!.coordinate)
-            {
-                continue
-            }
+            guard CLLocationCoordinate2DIsValid(annotation.location.coordinate) else { continue }
 
             var annotationView: ARAnnotationView? = nil
             if annotation.annotationView != nil
@@ -349,41 +346,22 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
     }
 
 
-    fileprivate func calculateDistanceAndAzimuthForAnnotations(sort: Bool, onlyForActiveAnnotations: Bool)
-    {
-        if self.trackingManager.userLocation == nil
-        {
-            return
-        }
+    private func calculateDistanceAndAzimuthForAnnotations(sort: Bool, onlyForActiveAnnotations: Bool) {
+        guard let userLocation = trackingManager.userLocation else { return }
 
-        let userLocation = self.trackingManager.userLocation!
-        let array = (onlyForActiveAnnotations && self.activeAnnotations.count > 0) ? self.activeAnnotations : self.annotations
+        let array = (onlyForActiveAnnotations && activeAnnotations.count > 0) ? activeAnnotations : annotations
 
-        for annotation in array
-        {
-            if annotation.location == nil   // This should never happen bcs we remove all annotations with invalid location in setAnnotation
-            {
-                annotation.distanceFromUser = 0
-                annotation.azimuth = 0
-                continue
-            }
-
+        for annotation in array {
             // Distance
-            annotation.distanceFromUser = annotation.location!.distance(from: userLocation)
+            annotation.distanceFromUser = annotation.location.distance(from: userLocation)
 
             // Azimuth
-            let azimuth = self.trackingManager.azimuthFromUserToLocation(annotation.location!)
+            let azimuth = trackingManager.azimuthFromUserToLocation(annotation.location)
             annotation.azimuth = azimuth
         }
 
-        if sort
-        {
-            self.annotations = self.annotations.sorted { $0.distanceFromUser < $1.distanceFromUser }
-
-            //      let sortedArray: NSMutableArray = NSMutableArray(array: self.annotations)
-            //      let sortDesc = NSSortDescriptor(key: "distanceFromUser", ascending: true)
-            //      sortedArray.sort(using: [sortDesc])
-            //      self.annotations = sortedArray as [AnyObject] as! [ARAnnotation]
+        if sort {
+            annotations = annotations.sorted { $0.distanceFromUser < $1.distanceFromUser }
         }
     }
 

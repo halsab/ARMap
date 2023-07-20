@@ -66,9 +66,9 @@ final class AnnotationView: ARAnnotationView {
         titleLabel.frame = .init(origin: .init(x: hPadding, y: vPadding), size: labelSize)
         distanceLabel.frame = .init(origin: .init(x: hPadding, y: vPadding + labelHeight + spacing), size: labelSize)
 
-        if let point = annotation as? Point {
-            titleLabel.text = point.name
-            distanceLabel.text = String(format: "%.2f км", point.distanceFromUser / 1000)
+        if let annotation = annotation {
+            titleLabel.text = annotation.title
+            distanceLabel.text = String(format: "%.2f км", annotation.distanceFromUser / 1000)
         }
     }
 }

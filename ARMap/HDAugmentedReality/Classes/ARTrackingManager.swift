@@ -122,21 +122,7 @@ open class ARTrackingManager: NSObject, CLLocationManagerDelegate
     internal func startTracking(notifyLocationFailure: Bool = false)
     {
         // Request authorization if state is not determined
-        if CLLocationManager.locationServicesEnabled()
-        {
-            if CLLocationManager.authorizationStatus() == CLAuthorizationStatus.notDetermined
-            {
-                if #available(iOS 8.0, *)
-                {
-                    self.locationManager.requestWhenInUseAuthorization()
-                }
-                else
-                {
-                    // Fallback on earlier versions
-                }
-                
-            }
-        }
+        self.locationManager.requestWhenInUseAuthorization()
         
         // Start motion and location managers
         self.motionManager.startAccelerometerUpdates()

@@ -47,12 +47,12 @@ class ViewController: UIViewController {
          */
 
         points = [
-            .init(name: "post", location: .init(latitude: 56.360171544220094, longitude: 50.02143823212503)),
-//            .init(name: "tauzar", location: .init(latitude: 56.344262704311184, longitude: 50.05760303416836)),
-//            .init(name: "karaduvan", location: .init(latitude: 56.34336076647664, longitude: 50.09637428471595)),
-//            .init(name: "apaz", location: .init(latitude: 56.387413017532545, longitude: 49.97778011590534)),
-//            .init(name: "yarak-churma", location: .init(latitude: 56.38144453236199, longitude: 50.15076414927715)),
-//            .init(name: "pshenger", location: .init(latitude: 56.41480214192328, longitude: 49.9781613634406)),
+            .init(name: "Post", location: .init(latitude: 56.360171544220094, longitude: 50.02143823212503)),
+            .init(name: "Tauzar", location: .init(latitude: 56.344262704311184, longitude: 50.05760303416836)),
+            .init(name: "Karaduvan", location: .init(latitude: 56.34336076647664, longitude: 50.09637428471595)),
+            .init(name: "Apaz", location: .init(latitude: 56.387413017532545, longitude: 49.97778011590534)),
+            .init(name: "Yarak-churma", location: .init(latitude: 56.38144453236199, longitude: 50.15076414927715)),
+            .init(name: "Pshenger", location: .init(latitude: 56.41480214192328, longitude: 49.9781613634406)),
         ]
 
         let annotaions = points.compactMap { Annotation(point: $0) }
@@ -66,8 +66,8 @@ class ViewController: UIViewController {
         arViewController = ARViewController()
         arViewController.dataSource = self
         arViewController.maxVisibleAnnotations = 10
-        arViewController.headingSmoothingFactor = 0.05
-        arViewController.maxVerticalLevel = 3
+        arViewController.headingSmoothingFactor = 0.1
+        arViewController.maxVerticalLevel = 5
         arViewController.setAnnotations(points)
         arViewController.closeButtonImage = UIImage(named: "MapButton")
     }

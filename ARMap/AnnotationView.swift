@@ -41,13 +41,15 @@ final class AnnotationView: ARAnnotationView {
     }
 
     private static let width: CGFloat = 100
-    private static let height: CGFloat = 50
+    private static let height: CGFloat = 60
 
     private let hPadding: CGFloat = 8
     private let vPadding: CGFloat = 8
     private let spacing: CGFloat = 4
-    private let labelHeight: CGFloat = 15
 
+    private var labelHeight: CGFloat {
+        (AnnotationView.height - spacing - vPadding * 2) / 2
+    }
     private var labelWidth: CGFloat {
         AnnotationView.width - hPadding * 2
     }

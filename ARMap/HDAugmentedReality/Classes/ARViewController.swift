@@ -430,12 +430,12 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
 
     if sort
     {
-      //self.annotations = self.annotations.sorted { $0.distanceFromUser < $1.distanceFromUser }
+      self.annotations = self.annotations.sorted { $0.distanceFromUser < $1.distanceFromUser }
 
-      let sortedArray: NSMutableArray = NSMutableArray(array: self.annotations)
-      let sortDesc = NSSortDescriptor(key: "distanceFromUser", ascending: true)
-      sortedArray.sort(using: [sortDesc])
-      self.annotations = sortedArray as [AnyObject] as! [ARAnnotation]
+//      let sortedArray: NSMutableArray = NSMutableArray(array: self.annotations)
+//      let sortDesc = NSSortDescriptor(key: "distanceFromUser", ascending: true)
+//      sortedArray.sort(using: [sortDesc])
+//      self.annotations = sortedArray as [AnyObject] as! [ARAnnotation]
     }
   }
 

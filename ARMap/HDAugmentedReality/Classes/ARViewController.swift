@@ -1075,7 +1075,7 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
     // Close button - make it customizable
       let closeButton: UIButton = UIButton(type: UIButton.ButtonType.custom)
       closeButton.setBackgroundImage(closeButtonImage, for: UIControl.State.normal);
-      closeButton.setBackgroundImage(#imageLiteral(resourceName: "MapIcon-Selected"), for: UIControl.State.highlighted);
+//      closeButton.setBackgroundImage(#imageLiteral(resourceName: "MapIcon-Selected"), for: UIControl.State.highlighted);
     closeButton.adjustsImageWhenHighlighted = false
     closeButton.frame = CGRect(x: (self.view.bounds.size.width / 2) - 37.5, y: self.view.bounds.size.height - 95, width: 75, height: 75)
       closeButton.addTarget(self, action: #selector(ARViewController.closeButtonTap), for: UIControl.Event.touchUpInside)

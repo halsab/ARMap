@@ -24,7 +24,7 @@
                                 <standardMapConfiguration key="preferredConfiguration"/>
                             </mapView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5rO-Zg-ZZ6">
-                                <rect key="frame" x="345.33333333333331" y="777.66666666666663" width="31.666666666666686" height="24.333333333333371"/>
+                                <rect key="frame" x="180.66666666666666" y="777.66666666666663" width="31.666666666666657" height="24.333333333333371"/>
                                 <color key="tintColor" systemColor="systemPurpleColor"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal">
@@ -41,9 +41,9 @@
                             <constraint firstItem="qaG-1K-s5Y" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="0iJ-Dm-W0V"/>
                             <constraint firstItem="5rO-Zg-ZZ6" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" constant="-16" id="IfX-8g-gF2"/>
                             <constraint firstItem="qaG-1K-s5Y" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="S2g-9d-fb9"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="5rO-Zg-ZZ6" secondAttribute="trailing" constant="16" id="VTa-M5-nlA"/>
                             <constraint firstItem="qaG-1K-s5Y" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom" id="a9b-SP-3Sp"/>
                             <constraint firstItem="qaG-1K-s5Y" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="rHb-QK-rkE"/>
+                            <constraint firstItem="5rO-Zg-ZZ6" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="rjC-rv-qij"/>
                         </constraints>
                     </view>
                     <connections>

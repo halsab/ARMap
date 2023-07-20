@@ -26,12 +26,11 @@ import CoreLocation
  *      https://github.com/DanijelHuis/HDAugmentedReality.git
  *
  */
-open class ARViewController: UIViewController, ARTrackingManagerDelegate
-{
+class ARViewController: UIViewController, ARTrackingManagerDelegate {
     /// Data source
-    open weak var dataSource: ARDataSource?
+    weak var dataSource: ARDataSource?
     /// Orientation mask for view controller. Make sure orientations are enabled in project settings also.
-    open var interfaceOrientationMask: UIInterfaceOrientationMask = UIInterfaceOrientationMask.all
+    var interfaceOrientationMask: UIInterfaceOrientationMask = .all
     /**
      *       Defines in how many vertical levels can annotations be stacked. Default value is 5.
      *       Annotations are initially vertically arranged by distance from user, but if two annotations visibly collide with each other,
@@ -40,23 +39,17 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
      *       NOTE: This property greatly impacts performance because collision detection is heavy operation, use it in range 1-10.
      *       Max value is 10.
      */
-    open var maxVerticalLevel = 0
-    {
-        didSet
-        {
-            if(maxVerticalLevel > MAX_VERTICAL_LEVELS)
-            {
+    var maxVerticalLevel = 0 {
+        didSet {
+            if maxVerticalLevel > MAX_VERTICAL_LEVELS {
                 maxVerticalLevel = MAX_VERTICAL_LEVELS
             }
         }
     }
     /// Total maximum number of visible annotation views. Default value is 100. Max value is 500
-    open var maxVisibleAnnotations = 0
-    {
-        didSet
-        {
-            if(maxVisibleAnnotations > MAX_VISIBLE_ANNOTATIONS)
-            {
+    var maxVisibleAnnotations = 0 {
+        didSet {
+            if maxVisibleAnnotations > MAX_VISIBLE_ANNOTATIONS {
                 maxVisibleAnnotations = MAX_VISIBLE_ANNOTATIONS
             }
         }
@@ -68,253 +61,221 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
      *       annotation that are closer to this value will be higher.
      *       Default value is 0 meters, which means that distances of annotations don't affect their visiblity.
      */
-    open var maxDistance: Double = 0
+    var maxDistance: Double = 0
     /// Class for managing geographical calculations. Use it to set properties like reloadDistanceFilter, userDistanceFilter and altitudeSensitive
-    fileprivate(set) open var trackingManager: ARTrackingManager = ARTrackingManager()
+    private(set) open var trackingManager: ARTrackingManager = ARTrackingManager()
     /// Image for close button. If not set, default one is used.
     //public var closeButtonImage = UIImage(named: "hdar_close", inBundle: NSBundle(forClass: ARViewController.self), compatibleWithTraitCollection: nil)
-    open var closeButtonImage: UIImage?
-    {
-        didSet
-        {
-            closeButton?.setImage(self.closeButtonImage, for: UIControl.State())
+    var closeButtonImage: UIImage? {
+        didSet {
+            closeButton?.setImage(self.closeButtonImage, for: .normal)
         }
     }
     /**
      Smoothing factor for heading in range 0-1. It affects horizontal movement of annotaion views. The lower the value the bigger the smoothing.
      Value of 1 means no smoothing, should be greater than 0.
      */
-    open var headingSmoothingFactor: Double = 1
+    var headingSmoothingFactor: Double = 1
 
     /**
      Called every 5 seconds after location tracking is started but failed to deliver location. It is also called when tracking has just started with timeElapsed = 0.
      The timer is restarted when app comes from background or on didAppear.
      */
-    open var onDidFailToFindLocation: ((_ timeElapsed: TimeInterval, _ acquiredLocationBefore: Bool) -> Void)?
+    var onDidFailToFindLocation: ((_ timeElapsed: TimeInterval, _ acquiredLocationBefore: Bool) -> Void)?
 
     /**
      Some ui options. Set it before controller is shown, changes made afterwards are disregarded.
      */
-    open var uiOptions = UiOptions()
+    var uiOptions = UiOptions()
 
     //===== Private
-    fileprivate var initialized: Bool = false
-    fileprivate var cameraSession: AVCaptureSession = AVCaptureSession()
-    fileprivate var overlayView: OverlayView = OverlayView()
-    fileprivate var displayTimer: CADisplayLink?
-    fileprivate var cameraLayer: AVCaptureVideoPreviewLayer?    // Will be set in init
-    fileprivate var annotationViews: [ARAnnotationView] = []
-    fileprivate var previosRegion: Int = 0
-    fileprivate var degreesPerScreen: CGFloat = 0
-    fileprivate var shouldReloadAnnotations: Bool = false
-    fileprivate var reloadInProgress = false
-    fileprivate var reloadToken: Int = 0
-    fileprivate var reloadLock = NSRecursiveLock()
-    fileprivate var annotations: [ARAnnotation] = []
-    fileprivate var activeAnnotations: [ARAnnotation] = []
-    var closeButton: UIButton?
-    fileprivate var currentHeading: Double = 0
-    fileprivate var lastLocation: CLLocation?
+    private var initialized: Bool = false
+    private var cameraSession: AVCaptureSession = AVCaptureSession()
+    private var overlayView: OverlayView = OverlayView()
+    private var displayTimer: CADisplayLink?
+    private var cameraLayer: AVCaptureVideoPreviewLayer?    // Will be set in init
+    private var annotationViews: [ARAnnotationView] = []
+    private var previosRegion: Int = 0
+    private var degreesPerScreen: CGFloat = 0
+    private var shouldReloadAnnotations: Bool = false
+    private var reloadInProgress = false
+    private var reloadToken: Int = 0
+    private var reloadLock = NSRecursiveLock()
+    private var annotations: [ARAnnotation] = []
+    private var activeAnnotations: [ARAnnotation] = []
+    private var closeButton: UIButton?
+    private var currentHeading: Double = 0
+    private var lastLocation: CLLocation?
 
-    fileprivate var debugLabel: UILabel?
-    fileprivate var debugMapButton: UIButton?
-    fileprivate var didLayoutSubviews: Bool = false
+    private var didLayoutSubviews: Bool = false
 
-    //==========================================================================================================================================================
-    // MARK:                                                        Init
-    //==========================================================================================================================================================
-    init()
-    {
+    // MARK: - Init
+
+    init() {
         super.init(nibName: nil, bundle: nil)
-        self.initializeInternal()
+        initializeInternal()
     }
 
-
-    required public init?(coder aDecoder: NSCoder)
-    {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.initializeInternal()
-
+        initializeInternal()
     }
 
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
-    {
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        self.initializeInternal()
-
+        initializeInternal()
     }
 
-    internal func initializeInternal()
-    {
-        if self.initialized
-        {
-            return
-        }
-        self.initialized = true;
+    func initializeInternal() {
+        guard !initialized else { return }
+
+        initialized = true;
 
         // Default values
-        self.trackingManager.delegate = self
-        self.maxVerticalLevel = 5
-        self.maxVisibleAnnotations = 100
-        self.maxDistance = 0
+        trackingManager.delegate = self
+        maxVerticalLevel = 5
+        maxVisibleAnnotations = 100
+        maxDistance = 0
 
-        NotificationCenter.default.addObserver(self, selector: #selector(ARViewController.appWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(ARViewController.appDidEnterBackground(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
-        self.initialize()
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(appWillEnterForeground),
+                                               name: UIApplication.willEnterForegroundNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(appDidEnterBackground),
+                                               name: UIApplication.didEnterBackgroundNotification,
+                                               object: nil)
+
+        initialize()
     }
 
     /// Intended for use in subclasses, no need to call super
-    internal func initialize()
-    {
+    func initialize() {}
 
-    }
-
-    deinit
-    {
+    deinit {
         NotificationCenter.default.removeObserver(self)
-        self.stopCamera()
+        stopCamera()
     }
 
-    //==========================================================================================================================================================
-    // MARK:                                                        View's lifecycle
-    //==========================================================================================================================================================
-    open override func viewWillAppear(_ animated: Bool)
-    {
+    // MARK: - View's lifecycle
+
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         onViewWillAppear()  // Doing like this to prevent subclassing problems
     }
 
-    open override func viewDidAppear(_ animated: Bool)
-    {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         onViewDidAppear()   // Doing like this to prevent subclassing problems
     }
 
-    open override func viewWillDisappear(_ animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        for annotationView in self.annotationViews
-        {
+        for annotationView in annotationViews {
             annotationView.removeFromSuperview()
         }
     }
 
-    open override func viewDidDisappear(_ animated: Bool)
-    {
+    override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         onViewDidDisappear()    // Doing like this to prevent subclassing problems
     }
 
-    open override func viewDidLayoutSubviews()
-    {
+    override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         onViewDidLayoutSubviews()
     }
 
-    fileprivate func onViewWillAppear()
-    {
+    private func onViewWillAppear() {
         // Camera layer if not added
-        if self.cameraLayer?.superlayer == nil { self.loadCamera() }
+        if cameraLayer?.superlayer == nil {
+            loadCamera()
+        }
 
         // Overlay
-        if self.overlayView.superview == nil { self.loadOverlay() }
+        if overlayView.superview == nil {
+            loadOverlay()
+        }
 
         // Set orientation and start camera
-        self.setOrientation(.portrait)
-        self.layoutUi()
-        self.startCamera(notifyLocationFailure: true)
+        setOrientation(.portrait)
+        layoutUi()
+        startCamera(notifyLocationFailure: true)
     }
 
-    fileprivate func onViewDidAppear()
-    {
+    private func onViewDidAppear() {}
 
-    }
-
-    fileprivate func onViewDidDisappear()
-    {
+    private func onViewDidDisappear() {
         stopCamera()
     }
 
-
-    @objc internal func closeButtonTap()
-    {
-        self.presentingViewController?.dismiss(animated: true, completion: nil)
+    @objc func closeButtonTap() {
+        presentingViewController?.dismiss(animated: true)
     }
 
-    open override var prefersStatusBarHidden : Bool
-    {
-        return true
+    override var prefersStatusBarHidden: Bool {
+        true
     }
 
-    fileprivate func onViewDidLayoutSubviews()
-    {
+    private func onViewDidLayoutSubviews() {
         // Executed only first time when everything is layouted
-        if !self.didLayoutSubviews
-        {
-            self.didLayoutSubviews = true
+        if !didLayoutSubviews {
+            didLayoutSubviews = true
 
             // Close button
-            if self.uiOptions.closeButtonEnabled { self.addCloseButton() }
+            if uiOptions.closeButtonEnabled {
+                addCloseButton()
+            }
 
             // Layout
-            self.layoutUi()
+            layoutUi()
 
-            self.view.layoutIfNeeded()
+            view.layoutIfNeeded()
         }
 
-        self.degreesPerScreen = (self.view.bounds.size.width / OVERLAY_VIEW_WIDTH) * 360.0
-
-
+        degreesPerScreen = (view.bounds.size.width / OVERLAY_VIEW_WIDTH) * 360.0
     }
-    @objc internal func appDidEnterBackground(_ notification: Notification)
-    {
-        if(self.view.window != nil)
-        {
-            self.trackingManager.stopTracking()
+
+    @objc func appDidEnterBackground(_ notification: Notification) {
+        if view.window != nil {
+            trackingManager.stopTracking()
         }
     }
-    @objc internal func appWillEnterForeground(_ notification: Notification)
-    {
-        if(self.view.window != nil)
-        {
+    @objc func appWillEnterForeground(_ notification: Notification) {
+        if view.window != nil {
             // Removing all from screen and restarting location manager.
-            for annotation in self.annotations
-            {
+            for annotation in annotations {
                 annotation.annotationView = nil
             }
 
-            for annotationView in self.annotationViews
-            {
+            for annotationView in annotationViews {
                 annotationView.removeFromSuperview()
             }
 
-            self.annotationViews = []
-            self.shouldReloadAnnotations = true;
-            self.trackingManager.stopTracking()
+            annotationViews = []
+            shouldReloadAnnotations = true
+            trackingManager.stopTracking()
             // Start tracking
-            self.trackingManager.startTracking(notifyLocationFailure: true)
+            trackingManager.startTracking(notifyLocationFailure: true)
         }
     }
-    //==========================================================================================================================================================
-    // MARK:                                                        Annotations and annotation views
-    //==========================================================================================================================================================
+
+    // MARK: - Annotations and annotation views
     /**
      *       Sets annotations. Note that annotations with invalid location will be kicked.
      *
      *       - parameter annotations: Annotations
      */
-    open func setAnnotations(_ annotations: [ARAnnotation])
-    {
+    func setAnnotations(_ annotations: [ARAnnotation]) {
         var validAnnotations: [ARAnnotation] = []
         // Don't use annotations without valid location
-        for annotation in annotations
-        {
-            if annotation.location != nil && CLLocationCoordinate2DIsValid(annotation.location!.coordinate)
-            {
+        for annotation in annotations {
+            if annotation.location != nil && CLLocationCoordinate2DIsValid(annotation.location!.coordinate) {
                 validAnnotations.append(annotation)
             }
         }
         self.annotations = validAnnotations
-        self.reloadAnnotations()
+        reloadAnnotations()
     }
 
     open func getAnnotations() -> [ARAnnotation]
@@ -797,8 +758,6 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
 
         self.overlayView.frame = self.overlayFrame()
         self.updateAnnotationsForCurrentHeading()
-
-        logText("Heading: \(self.trackingManager.heading)")
     }
 
     internal func arTrackingManager(_ trackingManager: ARTrackingManager, didUpdateUserLocation: CLLocation?)
@@ -818,20 +777,6 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
         {
             self.reload(calculateDistanceAndAzimuth: true, calculateVerticalLevels: true, createAnnotationViews: false)
         }
-
-        // Debug view, indicating that update was done
-        if(self.uiOptions.debugEnabled)
-        {
-            let view = UIView()
-            view.frame = CGRect(x: self.view.bounds.size.width - 80, y: 10, width: 30, height: 30)
-            view.backgroundColor = UIColor.red
-            self.view.addSubview(view)
-
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC))
-            {
-                view.removeFromSuperview()
-            }
-        }
     }
 
     internal func arTrackingManager(_ trackingManager: ARTrackingManager, didUpdateReloadLocation: CLLocation?)
@@ -849,29 +794,10 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
         {
             self.reloadAnnotations()
         }
-
-        // Debug view, indicating that reload was done
-        if(self.uiOptions.debugEnabled)
-        {
-            let view = UIView()
-            view.frame = CGRect(x: self.view.bounds.size.width - 80, y: 10, width: 30, height: 30)
-            view.backgroundColor = UIColor.blue
-            self.view.addSubview(view)
-
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC))
-            {
-                view.removeFromSuperview()
-            }
-        }
     }
     internal func arTrackingManager(_ trackingManager: ARTrackingManager, didFailToFindLocationAfter elapsedSeconds: TimeInterval)
     {
         self.onDidFailToFindLocation?(elapsedSeconds, self.lastLocation != nil)
-    }
-
-    internal func logText(_ text: String)
-    {
-        self.debugLabel?.text = text
     }
 
     //==========================================================================================================================================================
@@ -1088,14 +1014,10 @@ open class ARViewController: UIViewController, ARTrackingManagerDelegate
             return nil
         }
     }
-    //==========================================================================================================================================================
-    //MARK:                                                        UiOptions
-    //==========================================================================================================================================================
 
-    public struct UiOptions
-    {
-        /// Enables/Disables debug UI, like heading label, map button, some views when updating/reloading.
-        public var debugEnabled = false
+    //MARK: - UiOptions
+
+    public struct UiOptions {
         /// Enables/Disables close button.
         public var closeButtonEnabled = true
     }

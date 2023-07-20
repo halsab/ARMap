@@ -20,11 +20,6 @@
 		20D189E72A6830D30050AA4D /* ARTrackingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D189E22A6830D20050AA4D /* ARTrackingManager.swift */; };
 		20D189E82A6830D30050AA4D /* ARAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D189E32A6830D20050AA4D /* ARAnnotation.swift */; };
 		20D189E92A6830D30050AA4D /* ARConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D189E42A6830D30050AA4D /* ARConfiguration.swift */; };
-		20D189ED2A6830FD0050AA4D /* DebugMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D189EC2A6830FD0050AA4D /* DebugMapViewController.swift */; };
-		20D189F22A68310E0050AA4D /* hdar_close@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 20D189EE2A68310D0050AA4D /* hdar_close@3x.png */; };
-		20D189F32A68310E0050AA4D /* hdar_close@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 20D189EF2A68310D0050AA4D /* hdar_close@2x.png */; };
-		20D189F42A68310E0050AA4D /* hdar_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 20D189F02A68310E0050AA4D /* hdar_close.png */; };
-		20D189F52A68310E0050AA4D /* DebugMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 20D189F12A68310E0050AA4D /* DebugMapViewController.xib */; };
 		20D189F72A6914310050AA4D /* AnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20D189F62A6914310050AA4D /* AnnotationView.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,11 +39,6 @@
 		20D189E22A6830D20050AA4D /* ARTrackingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARTrackingManager.swift; sourceTree = "<group>"; };
 		20D189E32A6830D20050AA4D /* ARAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARAnnotation.swift; sourceTree = "<group>"; };
 		20D189E42A6830D30050AA4D /* ARConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARConfiguration.swift; sourceTree = "<group>"; };
-		20D189EC2A6830FD0050AA4D /* DebugMapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugMapViewController.swift; sourceTree = "<group>"; };
-		20D189EE2A68310D0050AA4D /* hdar_close@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hdar_close@3x.png"; sourceTree = "<group>"; };
-		20D189EF2A68310D0050AA4D /* hdar_close@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hdar_close@2x.png"; sourceTree = "<group>"; };
-		20D189F02A68310E0050AA4D /* hdar_close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hdar_close.png; sourceTree = "<group>"; };
-		20D189F12A68310E0050AA4D /* DebugMapViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DebugMapViewController.xib; sourceTree = "<group>"; };
 		20D189F62A6914310050AA4D /* AnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,8 +98,6 @@
 		20D189DF2A68309D0050AA4D /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				20D189EB2A6830E60050AA4D /* Resources */,
-				20D189EA2A6830E10050AA4D /* Debug */,
 				20D189E32A6830D20050AA4D /* ARAnnotation.swift */,
 				20D189E02A6830D20050AA4D /* ARAnnotationView.swift */,
 				20D189E42A6830D30050AA4D /* ARConfiguration.swift */,
@@ -117,25 +105,6 @@
 				20D189E12A6830D20050AA4D /* ARViewController.swift */,
 			);
 			path = Classes;
-			sourceTree = "<group>";
-		};
-		20D189EA2A6830E10050AA4D /* Debug */ = {
-			isa = PBXGroup;
-			children = (
-				20D189EC2A6830FD0050AA4D /* DebugMapViewController.swift */,
-			);
-			path = Debug;
-			sourceTree = "<group>";
-		};
-		20D189EB2A6830E60050AA4D /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				20D189F12A68310E0050AA4D /* DebugMapViewController.xib */,
-				20D189F02A68310E0050AA4D /* hdar_close.png */,
-				20D189EF2A68310D0050AA4D /* hdar_close@2x.png */,
-				20D189EE2A68310D0050AA4D /* hdar_close@3x.png */,
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -197,12 +166,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				20D189D12A68240C0050AA4D /* LaunchScreen.storyboard in Resources */,
-				20D189F42A68310E0050AA4D /* hdar_close.png in Resources */,
 				20D189CE2A68240C0050AA4D /* Assets.xcassets in Resources */,
-				20D189F52A68310E0050AA4D /* DebugMapViewController.xib in Resources */,
 				20D189CC2A68240B0050AA4D /* Main.storyboard in Resources */,
-				20D189F22A68310E0050AA4D /* hdar_close@3x.png in Resources */,
-				20D189F32A68310E0050AA4D /* hdar_close@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -213,7 +178,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				20D189ED2A6830FD0050AA4D /* DebugMapViewController.swift in Sources */,
 				20D189F72A6914310050AA4D /* AnnotationView.swift in Sources */,
 				20D189E62A6830D30050AA4D /* ARViewController.swift in Sources */,
 				20D189E82A6830D30050AA4D /* ARAnnotation.swift in Sources */,

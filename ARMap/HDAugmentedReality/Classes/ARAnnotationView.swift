@@ -21,7 +21,7 @@ open class ARAnnotationView: UIView
         super.init(frame: CGRect.zero)
         self.initializeInternal()
     }
-
+    
     public required init?(coder aDecoder: NSCoder)
     {
         super.init(coder: aDecoder)
@@ -52,7 +52,7 @@ open class ARAnnotationView: UIView
     /// Will always be called once, no need to call super
     open func initialize()
     {
-    
+        
     }
     
     /// Called when distance/azimuth changes, intended to be used in subclasses

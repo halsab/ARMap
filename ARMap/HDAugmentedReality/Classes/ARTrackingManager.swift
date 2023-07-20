@@ -46,7 +46,7 @@ open class ARTrackingManager: NSObject, CLLocationManagerDelegate
      *      Default value is 25m.
      */
     open var userDistanceFilter: CLLocationDistance!      // Will be set in init
-        {
+    {
         didSet
         {
             self.locationManager.distanceFilter = self.userDistanceFilter
@@ -60,14 +60,14 @@ open class ARTrackingManager: NSObject, CLLocationManagerDelegate
     fileprivate(set) internal var heading: Double = 0
     internal weak var delegate: ARTrackingManagerDelegate?
     internal var orientation: CLDeviceOrientation = CLDeviceOrientation.portrait
-        {
+    {
         didSet
         {
             self.locationManager.headingOrientation = self.orientation
         }
     }
     internal var pitch: Double
-        {
+    {
         get
         {
             return self.calculatePitch()
@@ -222,12 +222,12 @@ open class ARTrackingManager: NSObject, CLLocationManagerDelegate
             {
                 self.reportLocationToDelegate()
             }
-                // Report is already scheduled, doing nothing, it will report last location delivered in that 5s
+            // Report is already scheduled, doing nothing, it will report last location delivered in that 5s
             else if reportIsScheduled
             {
                 
             }
-                // Scheduling report in 5s
+            // Scheduling report in 5s
             else
             {
                 self.reportLocationTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(ARTrackingManager.reportLocationToDelegate), userInfo: nil, repeats: false)

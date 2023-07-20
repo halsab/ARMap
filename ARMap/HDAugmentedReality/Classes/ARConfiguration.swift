@@ -51,21 +51,21 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
 {
     /// Asks the data source to provide annotation view for annotation. Annotation view must be subclass of ARAnnotationView.
     func ar(_ arViewController: ARViewController, viewForAnnotation: ARAnnotation) -> ARAnnotationView
-   
-   /**
-    *       READ BEFORE IMPLEMENTING
-    *       ARViewController tracks user movement and shows/hides annotations accordingly. But if there is huge amount
-    *       of annotations or for some other reason annotations cannot be set all at once, this method can be used to
-    *       set annotations part by part.
-    *
-    *       Use ARViewController.trackingManager.reloadDistanceFilter to change how often this is called.
-    *
-    *       - parameter arViewController:        ARViewController instance
-    *       - parameter location:                Current location of the user
-    *       - returns:                       Annotations to load, previous annotations are removed
-    */
+    
+    /**
+     *       READ BEFORE IMPLEMENTING
+     *       ARViewController tracks user movement and shows/hides annotations accordingly. But if there is huge amount
+     *       of annotations or for some other reason annotations cannot be set all at once, this method can be used to
+     *       set annotations part by part.
+     *
+     *       Use ARViewController.trackingManager.reloadDistanceFilter to change how often this is called.
+     *
+     *       - parameter arViewController:        ARViewController instance
+     *       - parameter location:                Current location of the user
+     *       - returns:                       Annotations to load, previous annotations are removed
+     */
     @objc optional func ar(_ arViewController: ARViewController, shouldReloadWithLocation location: CLLocation) -> [ARAnnotation]
-
+    
 }
 
 

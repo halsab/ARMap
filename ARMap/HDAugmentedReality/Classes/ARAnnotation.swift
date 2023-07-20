@@ -24,5 +24,5 @@ open class ARAnnotation: NSObject
     internal(set) open var azimuth: Double = 0
     internal(set) open var verticalLevel: Int = 0
     internal(set) open var active: Bool = false
-
+    
 }

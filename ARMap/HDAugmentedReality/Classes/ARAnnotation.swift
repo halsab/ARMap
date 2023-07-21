@@ -12,11 +12,11 @@ import CoreLocation
 /// Defines POI with title and location.
 class ARAnnotation: NSObject {
     /// Title of annotation
-    var title: String
+    let title: String
     /// Location of annotation
-    var location: CLLocation
+    let location: CLLocation
     /// View for annotation. It is set inside ARViewController after fetching view from dataSource.
-    internal(set) open var annotationView: ARAnnotationView?
+    var annotationView: ARAnnotationView?
     
     // Internal use only, do not set this properties
     var distanceFromUser: Double = 0

@@ -696,36 +696,31 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
         onDidFailToFindLocation?(elapsedSeconds, lastLocation != nil)
     }
 
-    //==========================================================================================================================================================
-    // MARK:                                                        Camera
-    //==========================================================================================================================================================
-    fileprivate func loadCamera()
-    {
-        self.cameraLayer?.removeFromSuperlayer()
-        self.cameraLayer = nil
+    // MARK: - Camera
+
+    private func loadCamera() {
+        cameraLayer?.removeFromSuperlayer()
+        cameraLayer = nil
 
         //===== Video device/video input
         let captureSessionResult = ARViewController.createCaptureSession()
-        guard captureSessionResult.error == nil, let session = captureSessionResult.session else
-        {
+        guard captureSessionResult.error == nil, let session = captureSessionResult.session else {
             print("HDAugmentedReality: Cannot create capture session, use createCaptureSession method to check if device is capable for augmented reality.")
             return
         }
 
-        self.cameraSession = session
+        cameraSession = session
 
         //===== View preview layer
-        let cameraLayer = AVCaptureVideoPreviewLayer(session: self.cameraSession)
+        let cameraLayer = AVCaptureVideoPreviewLayer(session: cameraSession)
 
         cameraLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        self.view.layer.insertSublayer(cameraLayer, at: 0)
+        view.layer.insertSublayer(cameraLayer, at: 0)
         self.cameraLayer = cameraLayer
-
     }
 
     /// Tries to find back video device and add video input to it. This method can be used to check if device has hardware available for augmented reality.
-    open class func createCaptureSession() -> (session: AVCaptureSession?, error: NSError?)
-    {
+    class func createCaptureSession() -> (session: AVCaptureSession?, error: NSError?) {
         var error: NSError?
         var captureSession: AVCaptureSession?
         var backVideoDevice: AVCaptureDevice?
@@ -759,151 +754,113 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
         return (session: captureSession, error: error)
     }
 
-    fileprivate func startCamera(notifyLocationFailure: Bool) {
+    private func startCamera(notifyLocationFailure: Bool) {
         DispatchQueue.global(qos: .background).async {
             self.cameraSession.startRunning()
         }
-        self.trackingManager.startTracking(notifyLocationFailure: notifyLocationFailure)
-        self.displayTimer = CADisplayLink(target: self, selector: #selector(ARViewController.displayTimerTick))
-        self.displayTimer?.add(to: RunLoop.current, forMode: RunLoop.Mode.default)
+        trackingManager.startTracking(notifyLocationFailure: notifyLocationFailure)
+        displayTimer = CADisplayLink(target: self, selector: #selector(ARViewController.displayTimerTick))
+        displayTimer?.add(to: RunLoop.current, forMode: RunLoop.Mode.default)
     }
 
-    fileprivate func stopCamera() {
-        self.cameraSession.stopRunning()
-        self.trackingManager.stopTracking()
-        self.displayTimer?.invalidate()
-        self.displayTimer = nil
+    private func stopCamera() {
+        cameraSession.stopRunning()
+        trackingManager.stopTracking()
+        displayTimer?.invalidate()
+        displayTimer = nil
     }
 
-    //==========================================================================================================================================================
-    // MARK:                                                        Overlay
-    //==========================================================================================================================================================
+    // MARK: - Overlay
+
     /// Overlay view is used to host annotation views.
-    fileprivate func loadOverlay()
-    {
-        self.overlayView.removeFromSuperview()
-        self.overlayView = OverlayView()
-        self.view.addSubview(self.overlayView)
-        /*self.overlayView.backgroundColor = UIColor.greenColor().colorWithAlphaComponent(0.1)
-
-         for i in 0...36
-         {
-         let view = UIView()
-         view.frame = CGRectMake( CGFloat(i * 10) * H_PIXELS_PER_DEGREE , 50, 10, 10)
-         view.backgroundColor = UIColor.redColor()
-         self.overlayView.addSubview(view)
-         }*/
+    private func loadOverlay() {
+        overlayView.removeFromSuperview()
+        overlayView = OverlayView()
+        view.addSubview(overlayView)
     }
 
-    fileprivate func overlayFrame() -> CGRect
-    {
-        let x: CGFloat = self.view.bounds.size.width / 2 - (CGFloat(currentHeading) * H_PIXELS_PER_DEGREE)
-        let y: CGFloat = (CGFloat(self.trackingManager.pitch) * VERTICAL_SENS) + 60.0
+    private func overlayFrame() -> CGRect {
+        let x: CGFloat = view.bounds.size.width / 2 - (CGFloat(currentHeading) * H_PIXELS_PER_DEGREE)
+        let y: CGFloat = (CGFloat(trackingManager.pitch) * VERTICAL_SENS) + 60.0
 
-        let newFrame = CGRect(x: x, y: y, width: OVERLAY_VIEW_WIDTH, height: self.view.bounds.size.height)
+        let newFrame = CGRect(x: x, y: y, width: OVERLAY_VIEW_WIDTH, height: view.bounds.size.height)
         return newFrame
     }
 
-    fileprivate func layoutUi()
-    {
-        self.cameraLayer?.frame = self.view.bounds
-        self.overlayView.frame = self.overlayFrame()
-    }
-    //==========================================================================================================================================================
-    //MARK:                                                        Rotation/Orientation
-    //==========================================================================================================================================================
-    open override var shouldAutorotate : Bool
-    {
-        return true
+    private func layoutUi() {
+        cameraLayer?.frame = view.bounds
+        overlayView.frame = overlayFrame()
     }
 
-    open override var supportedInterfaceOrientations : UIInterfaceOrientationMask
-    {
-        return UIInterfaceOrientationMask(rawValue: self.interfaceOrientationMask.rawValue)
+    //MARK: - Rotation/Orientation
+
+    override var shouldAutorotate : Bool {
+        true
     }
 
-    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator)
-    {
+    override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+        UIInterfaceOrientationMask(rawValue: interfaceOrientationMask.rawValue)
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        coordinator.animate(alongsideTransition:
-                                {
-            (coordinatorContext) in
-
+        coordinator.animate(alongsideTransition: { coordinatorContext in
             self.setOrientation(.portrait)
-        })
-        {
-            [unowned self] (coordinatorContext) in
-
-            self.layoutAndReloadOnOrientationChange()
+        }) { [unowned self] coordinatorContext in
+            layoutAndReloadOnOrientationChange()
         }
     }
 
-    internal func layoutAndReloadOnOrientationChange()
-    {
+    func layoutAndReloadOnOrientationChange() {
         CATransaction.begin()
         CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        self.layoutUi()
-        self.reload(calculateDistanceAndAzimuth: false, calculateVerticalLevels: false, createAnnotationViews: false)
+        layoutUi()
+        reload(calculateDistanceAndAzimuth: false, calculateVerticalLevels: false, createAnnotationViews: false)
         CATransaction.commit()
     }
 
-    fileprivate func setOrientation(_ orientation: UIInterfaceOrientation)
-    {
-        if self.cameraLayer?.connection?.isVideoOrientationSupported != nil
-        {
-            if let videoOrientation = AVCaptureVideoOrientation(rawValue: Int(orientation.rawValue))
-            {
-                self.cameraLayer?.connection?.videoOrientation = videoOrientation
-            }
+    private func setOrientation(_ orientation: UIInterfaceOrientation) {
+        if cameraLayer?.connection?.isVideoOrientationSupported != nil,
+           let videoOrientation = AVCaptureVideoOrientation(rawValue: Int(orientation.rawValue)) {
+            cameraLayer?.connection?.videoOrientation = videoOrientation
         }
 
-        if let deviceOrientation = CLDeviceOrientation(rawValue: Int32(orientation.rawValue))
-        {
-            self.trackingManager.orientation = deviceOrientation
+        if let deviceOrientation = CLDeviceOrientation(rawValue: Int32(orientation.rawValue)) {
+            trackingManager.orientation = deviceOrientation
         }
     }
 
-    //==========================================================================================================================================================
-    //MARK:                                                        UI
-    //==========================================================================================================================================================
-    func addCloseButton()
-    {
-        self.closeButton?.removeFromSuperview()
+    //MARK: - UI
 
-        if self.closeButtonImage == nil {
-            self.closeButtonImage = UIImage(systemName: "xmark")
+    func addCloseButton() {
+        closeButton?.removeFromSuperview()
+
+        if closeButtonImage == nil {
+            closeButtonImage = UIImage(systemName: "xmark")
         }
 
         // Close button - make it customizable
-        let closeButton: UIButton = UIButton(type: UIButton.ButtonType.custom)
-        closeButton.setBackgroundImage(closeButtonImage, for: UIControl.State.normal);
-        //      closeButton.setBackgroundImage(#imageLiteral(resourceName: "MapIcon-Selected"), for: UIControl.State.highlighted);
+        let closeButton = UIButton(type: .custom)
+        closeButton.setBackgroundImage(closeButtonImage, for: .normal);
         closeButton.adjustsImageWhenHighlighted = false
-        closeButton.frame = CGRect(x: (self.view.bounds.size.width / 2) - 37.5, y: self.view.bounds.size.height - 95, width: 75, height: 75)
-        closeButton.addTarget(self, action: #selector(ARViewController.closeButtonTap), for: UIControl.Event.touchUpInside)
-        closeButton.autoresizingMask = [UIView.AutoresizingMask.flexibleLeftMargin, UIView.AutoresizingMask.flexibleBottomMargin]
-        self.view.addSubview(closeButton)
+        closeButton.frame = CGRect(x: (view.bounds.size.width / 2) - 37.5, y: view.bounds.size.height - 95, width: 75, height: 75)
+        closeButton.addTarget(self, action: #selector(closeButtonTap), for: .touchUpInside)
+        closeButton.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
+        view.addSubview(closeButton)
         self.closeButton = closeButton
     }
 
-    //==========================================================================================================================================================
-    //MARK:                                                        OverlayView class
-    //==========================================================================================================================================================
+    //MARK: - OverlayView class
 
     /// Normal UIView that registers taps on subviews out of its bounds.
-    fileprivate class OverlayView: UIView
-    {
-        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView?
-        {
-            if(!self.clipsToBounds && !self.isHidden)
-            {
-                for subview in self.subviews.reversed()
-                {
+    private class OverlayView: UIView {
+        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            if !self.clipsToBounds && !self.isHidden {
+                for subview in self.subviews.reversed() {
                     let subPoint = subview.convert(point, from: self)
-                    if let result:UIView = subview.hitTest(subPoint, with:event)
-                    {
-                        return result;
+                    if let result: UIView = subview.hitTest(subPoint, with:event) {
+                        return result
                     }
                 }
             }
@@ -913,8 +870,8 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
 
     //MARK: - UiOptions
 
-    public struct UiOptions {
+    struct UiOptions {
         /// Enables/Disables close button.
-        public var closeButtonEnabled = true
+        var closeButtonEnabled = true
     }
 }

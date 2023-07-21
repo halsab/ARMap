@@ -574,59 +574,45 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
 
         return anyAnnotationView
     }
-    //==========================================================================================================================================================
-    // MARK:                                    Main logic
-    //==========================================================================================================================================================
 
-    fileprivate func reload(calculateDistanceAndAzimuth: Bool, calculateVerticalLevels: Bool, createAnnotationViews: Bool)
-    {
-        //NSLog("==========")
-        if calculateDistanceAndAzimuth
-        {
+    // MARK: - Main logic
 
+    private func reload(calculateDistanceAndAzimuth: Bool, calculateVerticalLevels: Bool, createAnnotationViews: Bool) {
+        if calculateDistanceAndAzimuth {
             // Sort by distance is needed only if creating new views
             let sort = createAnnotationViews
             // Calculations for all annotations should be done only when creating annotations views
             let onlyForActiveAnnotations = !createAnnotationViews
-            self.calculateDistanceAndAzimuthForAnnotations(sort: sort, onlyForActiveAnnotations: onlyForActiveAnnotations)
-
-
+            calculateDistanceAndAzimuthForAnnotations(sort: sort, onlyForActiveAnnotations: onlyForActiveAnnotations)
         }
 
-        if(createAnnotationViews)
-        {
-            self.activeAnnotations = filteredAnnotations(nil, maxVisibleAnnotations: self.maxVisibleAnnotations, maxDistance: self.maxDistance)
-            self.setInitialVerticalLevels()
+        if createAnnotationViews {
+            activeAnnotations = filteredAnnotations(nil, maxVisibleAnnotations: maxVisibleAnnotations, maxDistance: maxDistance)
+            setInitialVerticalLevels()
         }
 
-        if calculateVerticalLevels
-        {
+        if calculateVerticalLevels {
             self.calculateVerticalLevels()
         }
 
-        if createAnnotationViews
-        {
+        if createAnnotationViews {
             self.createAnnotationViews()
         }
 
-        self.positionAnnotationViews()
+        positionAnnotationViews()
 
         // Calling bindUi on every annotation view so it can refresh its content,
         // doing this every time distance changes, in case distance is needed for display.
-        if calculateDistanceAndAzimuth
-        {
-            for annotationView in self.annotationViews
-            {
+        if calculateDistanceAndAzimuth {
+            for annotationView in annotationViews {
                 annotationView.bindUi()
             }
         }
-
     }
 
     /// Determines which annotations are active and which are inactive. If some of the input parameters is nil, then it won't filter by that parameter.
-    fileprivate func filteredAnnotations(_ maxVerticalLevel: Int?, maxVisibleAnnotations: Int?, maxDistance: Double?) -> [ARAnnotation]
-    {
-        let nsAnnotations: NSMutableArray = NSMutableArray(array: self.annotations)
+    private func filteredAnnotations(_ maxVerticalLevel: Int?, maxVisibleAnnotations: Int?, maxDistance: Double?) -> [ARAnnotation] {
+        let nsAnnotations: NSMutableArray = NSMutableArray(array: annotations)
 
         var filteredAnnotations: [ARAnnotation] = []
         var count = 0
@@ -635,95 +621,79 @@ class ARViewController: UIViewController, ARTrackingManagerDelegate {
         let checkMaxVerticalLevel = maxVerticalLevel != nil
         let checkMaxDistance = maxDistance != nil
 
-        for nsAnnotation in nsAnnotations
-        {
-            let annotation = nsAnnotation as! ARAnnotation
+        for nsAnnotation in nsAnnotations {
+            guard let annotation = nsAnnotation as? ARAnnotation else { continue }
 
             // filter by maxVisibleAnnotations
-            if(checkMaxVisibleAnnotations && count >= maxVisibleAnnotations!)
-            {
+            if checkMaxVisibleAnnotations && count >= maxVisibleAnnotations! {
                 annotation.active = false
                 continue
             }
 
             // filter by maxVerticalLevel and maxDistance
             if (!checkMaxVerticalLevel || annotation.verticalLevel <= maxVerticalLevel!) &&
-                (!checkMaxDistance || self.maxDistance == 0 || annotation.distanceFromUser <= maxDistance!)
-            {
+                (!checkMaxDistance || self.maxDistance == 0 || annotation.distanceFromUser <= maxDistance!) {
                 filteredAnnotations.append(annotation)
                 annotation.active = true
                 count += 1;
-            }
-            else
-            {
+            } else {
                 annotation.active = false
             }
         }
         return filteredAnnotations
     }
 
-    //==========================================================================================================================================================
-    // MARK:                                    Events: ARLocationManagerDelegate/Display timer
-    //==========================================================================================================================================================
-    @objc internal func displayTimerTick()
-    {
+    // MARK: - Events: ARLocationManagerDelegate/Display timer
+
+    @objc func displayTimerTick() {
         let filterFactor: Double = headingSmoothingFactor
-        let newHeading = self.trackingManager.heading
+        let newHeading = trackingManager.heading
 
         // Picking up the pace if device is being rotated fast or heading of device is at the border(North). It is needed
         // to do this on North border because overlayView changes its position and we don't want it to animate full circle.
-        if(self.headingSmoothingFactor == 1 || fabs(currentHeading - self.trackingManager.heading) > 50)
-        {
-            currentHeading = self.trackingManager.heading
-        }
-        else
-        {
+        if headingSmoothingFactor == 1 || fabs(currentHeading - trackingManager.heading) > 50 {
+            currentHeading = trackingManager.heading
+        } else {
             // Smoothing out heading
             currentHeading = (newHeading * filterFactor) + (currentHeading  * (1.0 - filterFactor))
         }
 
-        self.overlayView.frame = self.overlayFrame()
-        self.updateAnnotationsForCurrentHeading()
+        overlayView.frame = overlayFrame()
+        updateAnnotationsForCurrentHeading()
     }
 
-    internal func arTrackingManager(_ trackingManager: ARTrackingManager, didUpdateUserLocation: CLLocation?)
-    {
-        if let location = trackingManager.userLocation
-        {
-            self.lastLocation = location
+    func arTrackingManager(_ trackingManager: ARTrackingManager, didUpdateUserLocation: CLLocation?) {
+        if let location = trackingManager.userLocation {
+            lastLocation = location
         }
 
-        // shouldReloadAnnotations will be true if reloadAnnotations was called before location was fetched
-        if self.shouldReloadAnnotations
-        {
-            self.reloadAnnotations()
+        if shouldReloadAnnotations {
+            // shouldReloadAnnotations will be true if reloadAnnotations was called before location was fetched
+            reloadAnnotations()
         }
-        // Refresh only if we have annotations
-        else if self.activeAnnotations.count > 0
-        {
-            self.reload(calculateDistanceAndAzimuth: true, calculateVerticalLevels: true, createAnnotationViews: false)
+        else if self.activeAnnotations.count > 0 {
+            // Refresh only if we have annotations
+            reload(calculateDistanceAndAzimuth: true, calculateVerticalLevels: true, createAnnotationViews: false)
         }
     }
 
-    internal func arTrackingManager(_ trackingManager: ARTrackingManager, didUpdateReloadLocation: CLLocation?)
-    {
+    func arTrackingManager(_ trackingManager: ARTrackingManager, didUpdateReloadLocation: CLLocation?) {
         // Manual reload?
-        if didUpdateReloadLocation != nil && self.dataSource != nil && self.dataSource!.responds(to: #selector(ARDataSource.ar(_:shouldReloadWithLocation:)))
-        {
-            let annotations = self.dataSource?.ar?(self, shouldReloadWithLocation: didUpdateReloadLocation!)
-            if let annotations = annotations
-            {
+
+        if let didUpdateReloadLocation = didUpdateReloadLocation,
+           let dataSource = dataSource,
+           dataSource.responds(to: #selector(ARDataSource.ar(_:shouldReloadWithLocation:))) {
+            let annotations = dataSource.ar?(self, shouldReloadWithLocation: didUpdateReloadLocation)
+            if let annotations = annotations {
                 setAnnotations(annotations);
             }
-        }
-        else
-        {
-            self.reloadAnnotations()
+        } else {
+            reloadAnnotations()
         }
     }
-    internal func arTrackingManager(_ trackingManager: ARTrackingManager, didFailToFindLocationAfter elapsedSeconds: TimeInterval)
-    {
-        self.onDidFailToFindLocation?(elapsedSeconds, self.lastLocation != nil)
+
+    func arTrackingManager(_ trackingManager: ARTrackingManager, didFailToFindLocationAfter elapsedSeconds: TimeInterval) {
+        onDidFailToFindLocation?(elapsedSeconds, lastLocation != nil)
     }
 
     //==========================================================================================================================================================
